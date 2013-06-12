@@ -18,7 +18,7 @@ class MbtilesHandler(tornado.web.RequestHandler):
     def initialize(self, ext, mbtiles):
         self.ext = ext
         self.mbtiles = mbtiles
-        self.tileset = MbtileSet(mbtiles=mbtiles)
+        self.tileset = MbtileSet(mbtiles=mbtiles, origin='top') # Leaflet slippy map
 
     def get(self, z, x, y):
         origin = self.get_arguments('origin')
@@ -33,9 +33,11 @@ class MbtilesHandler(tornado.web.RequestHandler):
             y = ymax - int(y) - 1;
 
         tile = self.tileset.get_tile(z, x, y) 
+
         if self.ext == 'png':
             self.set_header('Content-Type', 'image/png')
-            self.write(tile.get_png())
+            if tile.get_png():
+                self.write(tile.get_png())
         elif self.ext == 'json':
             callback = self.get_arguments('callback')
             try:
